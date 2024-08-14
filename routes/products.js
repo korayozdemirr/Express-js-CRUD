@@ -2,7 +2,7 @@ const express = require("express");
 const Product = require("../models/Product");
 const router = express.Router();
 
-router.get("/", (req, res) => {});
+router.get("/", (req, res) => { });
 
 router.get("/:id", (req, res) => {
   res.send(`fetch product ${req.params.id}`);
@@ -24,7 +24,19 @@ router.post("/", (req, res) => {
     });
 });
 router.put("/:id", (req, res) => {
-  res.send(`update product ${req.params.id}`);
+  const updateData = req.body;
+  Product.findByIdAndUpdate(
+    req.params.id,
+    { $set: updateData },
+    { new: true }
+  ).then((updatedProduct) => {
+    if (!updateData) {
+      return res.status(404).send(`Product with ID ${req.params.id} not found.`);
+    }
+    res.json(updatedProduct)
+  }).catch((error) => {
+    res.json(error)
+  })
 });
 
 router.delete("/:id", (req, res) => {

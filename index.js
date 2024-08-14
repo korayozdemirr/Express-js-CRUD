@@ -9,7 +9,7 @@ app.use(express.json())
 app.use("/products", productsRouter)
 
 /*Mongo db connection*/
-mongoose.connect("mongodb://localhost:27017/test")
+mongoose.connect("mongodb+srv://admin:koray123@cluster0.yq5lq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 .then(() => {
     console.log("Connected to database")
 })
@@ -20,8 +20,8 @@ app.get("/", (req, res) => {
     res.send("Hello world")
 })
 
-app.listen(5000, () => {
-    console.log("Server is Running on PORT 5000");
+app.listen(5001, () => {
+    console.log("Server is Running on PORT 5001");
 });
 
-//yYMxT8SqKpNU4MxO
+//cvS5MpJ6O1Ws8zgG
