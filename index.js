@@ -2,13 +2,13 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const productsRouter = require("./routes/products");
-const userRouter = require("./routes/users");
+const authRouter = require("./routes/auth");
 
 /* Parser */
 app.use(express.json());
 /* Routes */
 app.use("/products", productsRouter);
-app.use("/user", userRouter);
+app.use("/user", authRouter);
 /*Mongo db connection*/
 mongoose
   .connect(
