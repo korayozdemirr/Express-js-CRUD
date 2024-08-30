@@ -1,5 +1,6 @@
 const express = require("express");
 const Product = require("../models/Product");
+const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -16,11 +17,12 @@ router.get("/:id", (req, res) => {
   res.send(`fetch product ${req.params.id}`);
 });
 
-router.post("/", (req, res) => {
+router.post("/", authMiddleware, (req, res) => {
   const product = new Product({
     name: req.body.name,
     price: req.body.price,
     description: req.body.description,
+    user: req.userID,
   });
   product
     .save()
@@ -31,7 +33,7 @@ router.post("/", (req, res) => {
       res.json(error);
     });
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", authMiddleware, (req, res) => {
   const updateData = req.body;
   Product.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true })
     .then((updatedProduct) => {
@@ -40,6 +42,12 @@ router.put("/:id", (req, res) => {
           .status(404)
           .send(`Product with ID ${req.params.id} not found.`);
       }
+      
+      if (updatedProduct.user.toString() !== req.userID) {
+        return res
+          .status(403)
+          .send("You are not authorized to update this product.");
+      }
       res.json(updatedProduct);
     })
     .catch((error) => {
@@ -47,17 +55,30 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authMiddleware, (req, res) => {
   const productID = req.params.id;
-  Product.findByIdAndDelete(productID)
-    .then((deleteProduct) => {
-      if (!deleteProduct) {
-        return res.status(404).send(`Product with ID ${productID} not found`);
+  Product.findById(productID)
+    .then((product) => {
+      if (!product) {
+        return res.status(404).send(`Product with ID ${productID} not found.`);
       }
-      res.send(`Product width ID ${productID} was deleted successfully`);
+      console.log(product.user)
+      if (product.user.toString() !== req.userID) {
+        return res
+          .status(403)
+          .send("You are not authorized to delete this product");
+      }
+      return Product.findByIdAndDelete(productID);
+    })
+    .then((deletedProduct) => {
+      const deleteID = deletedProduct._id;
+      res.send(`Product with ID ${deleteID} was deleted successfully`);
     })
     .catch((error) => {
-      res.status(500).send("Error deleting product: " + error.message);
+      if(!res.headersSent){
+
+        res.status(500).send("Error deleting produt: " + error.message);
+      }
     });
 });
 

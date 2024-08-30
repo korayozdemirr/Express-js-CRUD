@@ -3,12 +3,12 @@ const app = express();
 const mongoose = require("mongoose");
 const productsRouter = require("./routes/products");
 const authRouter = require("./routes/auth");
-
+const authMiddleware = require("./middleware/authMiddleware");
 /* Parser */
 app.use(express.json());
 /* Routes */
 app.use("/products", productsRouter);
-app.use("/user", authRouter);
+app.use("/auth", authRouter);
 /*Mongo db connection*/
 mongoose
   .connect(
